@@ -92,13 +92,14 @@
                     <li><a href="#slide3" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">3. Jenis-jenis Raspberry Pi</a></li>
                     <li><a href="#slide4" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">4. YOLO: You Only Look Once</a></li>
                     <li><a href="#slide5" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">5. Apa itu YOLO?</a></li>
-                    <li><a href="#slide6" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">6. Tahapan Membuat Model YOLO</a></li>
-                    <li><a href="#slide7" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">7. Instalasi YOLO</a></li>
-                    <li><a href="#slide8" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">8. Akuisisi Data</a></li>
-                    <li><a href="#slide9" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">9. Labeling Data</a></li>
-                    <li><a href="#slide10" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">10. Training Model</a></li>
-                    <li><a href="#slide11" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">11. Testing/Validasi Model</a></li>
-                    <li><a href="#slide12" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">12. Implementasi & Run Model</a></li>
+                    <li><a href="#slide6" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">6. Versi-versi YOLO Sebelumnya</a></li>
+                    <li><a href="#slide7" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">7. Tahapan Membuat Model YOLO</a></li>
+                    <li><a href="#slide8" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">8. Instalasi YOLO</a></li>
+                    <li><a href="#slide9" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">9. Akuisisi Data</a></li>
+                    <li><a href="#slide10" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">10. Labeling Data</a></li>
+                    <li><a href="#slide11" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">11. Training Model</a></li>
+                    <li><a href="#slide12" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">12. Testing/Validasi Model</a></li>
+                    <li><a href="#slide13" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">13. Implementasi & Run Model</a></li>
                 </ul>
             </nav>
         </aside>
@@ -174,11 +175,11 @@
                     (YOU ONLY LOOK ONCE)
                 </p>
                 <div class="mt-12">
-                    <img src="64994922cf2a6385a4bf4489_UltralyticsYOLO_mark_blue.svg" alt="YOLO Logo Placeholder" class="rounded-lg shadow-xl">
+                    <img src="64994922cf2a6385a4bf4489_UltralyticsYOLO_mark_blue.svg" alt="YOLO Logo" class="rounded-lg shadow-xl">
                 </div>
             </section>
 
-            <!-- Slide 5: Apa itu YOLO? (Detail) -->
+            <!-- Slide 5: Apa itu YOLO? -->
             <section id="slide5" class="slide bg-white rounded-xl shadow-2xl p-10 mb-12 opacity-50 transition-opacity duration-500 ease-in-out transform scale-95">
                 <h2 class="text-4xl font-bold text-red-600 mb-8 text-center">Apa itu YOLO? </h2>
                 <p class="text-lg text-gray-700 text-center mb-10">
@@ -193,12 +194,41 @@
                     </li>
                 </ul>
                 <div class="mt-10 flex justify-center">
-                    <img src="architecture.png" alt="YOLO Architecture Placeholder" class="rounded-lg shadow-xl">
+                    <img src="architecture.png" alt="YOLO Architecture" class="rounded-lg shadow-xl">
                 </div>
             </section>
 
-            <!-- Slide 6: Tahapan Membuat Model YOLO -->
+            <!-- NEW Slide 6: Versi-versi YOLO Sebelumnya -->
             <section id="slide6" class="slide bg-white rounded-xl shadow-2xl p-10 mb-12 opacity-50 transition-opacity duration-500 ease-in-out transform scale-95">
+                <h2 class="text-4xl font-bold text-purple-600 mb-8 text-center">Versi-versi YOLO Sebelumnya</h2>
+                <p class="text-lg text-gray-700 text-center mb-10">
+                    Sejak pertama kali diperkenalkan, arsitektur YOLO telah mengalami banyak evolusi, dengan setiap versi membawa peningkatan signifikan dalam kecepatan, akurasi, dan fleksibilitas. Ultralytics berperan besar dalam pengembangan beberapa versi populer.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl mx-auto">
+                    <div class="bg-blue-50 p-6 rounded-xl shadow-md border-l-4 border-blue-500">
+                        <h3 class="text-2xl font-semibold text-blue-700 mb-2">YOLOv1 - YOLOv3</h3>
+                        <p class="text-md text-gray-700">Versi awal yang meletakkan dasar deteksi objek satu tahap. YOLOv2 memperkenalkan "anchor boxes" dan *batch normalization*. YOLOv3 meningkatkan akurasi dengan *backbone* dan *multi-scale detection* yang lebih efisien.</p>
+                    </div>
+                    <div class="bg-green-50 p-6 rounded-xl shadow-md border-l-4 border-green-500">
+                        <h3 class="text-2xl font-semibold text-green-700 mb-2">YOLOv4 & YOLOv5</h3>
+                        <p class="text-md text-gray-700">YOLOv4 (oleh Alexey Bochkovskiy) membawa optimasi baru pada arsitektur Darknet. YOLOv5 (oleh Ultralytics) fokus pada kemudahan penggunaan, performa, dan kecepatan yang lebih baik, menjadi sangat populer di kalangan pengembang.</p>
+                    </div>
+                    <div class="bg-yellow-50 p-6 rounded-xl shadow-md border-l-4 border-yellow-500">
+                        <h3 class="text-2xl font-semibold text-yellow-700 mb-2">YOLOv6 & YOLOv7</h3>
+                        <p class="text-md text-gray-700">YOLOv6 (oleh Meituan) dan YOLOv7 (oleh tim YOLOv4) melanjutkan peningkatan performa, terutama dalam hal kecepatan inferensi. YOLOv6 sering digunakan dalam robot pengiriman otonom.</p>
+                    </div>
+                    <div class="bg-red-50 p-6 rounded-xl shadow-md border-l-4 border-red-500">
+                        <h3 class="text-2xl font-semibold text-red-700 mb-2">YOLOv8 & Versi Terbaru</h3>
+                        <p class="text-md text-gray-700">YOLOv8 (oleh Ultralytics) adalah model serbaguna dengan kemampuan tambahan seperti segmentasi instan, estimasi pose, dan klasifikasi. Versi-versi selanjutnya (seperti YOLOv9, YOLOv10, hingga YOLO11) terus berinovasi untuk kecepatan dan akurasi yang lebih baik.</p>
+                    </div>
+                </div>
+                <div class="mt-10 flex justify-center">
+                    <img src="performance-comparison.png" alt="Evolusi Versi YOLO" class="rounded-lg shadow-xl">
+                </div>
+            </section>
+
+            <!-- Slide 7: Tahapan Membuat Model YOLO (Updated ID and Content) -->
+            <section id="slide7" class="slide bg-white rounded-xl shadow-2xl p-10 mb-12 opacity-50 transition-opacity duration-500 ease-in-out transform scale-95">
                 <h2 class="text-4xl font-bold text-red-600 mb-8 text-center">Tahapan Membuat Model YOLO</h2>
                 <p class="text-lg text-gray-700 text-center mb-10">
                     Membangun model deteksi objek YOLO melibatkan beberapa tahapan penting:
@@ -225,8 +255,8 @@
                 </ol>
             </section>
 
-            <!-- Slide 7: Instalasi YOLO -->
-            <section id="slide7" class="slide bg-white rounded-xl shadow-2xl p-10 mb-12 opacity-50 transition-opacity duration-500 ease-in-out transform scale-95">
+            <!-- Slide 8: Instalasi YOLO (Updated ID and Content) -->
+            <section id="slide8" class="slide bg-white rounded-xl shadow-2xl p-10 mb-12 opacity-50 transition-opacity duration-500 ease-in-out transform scale-95">
                 <h2 class="text-4xl font-bold text-blue-600 mb-8 text-center">Instalasi YOLO</h2>
                 <p class="text-lg text-gray-700 text-center mb-10">
                     Untuk memulai, kita perlu menginstal beberapa library penting:
@@ -239,7 +269,7 @@
                         <p class="text-lg text-gray-800">
                             PyTorch adalah framework deep learning yang akan digunakan oleh YOLO.
                         </p>
-                        <img src="newsroom-pytorch-logo.png" alt="PyTorch Logo Placeholder" class="mt-4 rounded-md">
+                        <img src="newsroom-pytorch-logo.png" alt="PyTorch Logo" class="mt-4 rounded-md">
                     </div>
                     <div class="bg-green-100 p-6 rounded-xl shadow-lg border-l-4 border-green-500 flex flex-col items-center justify-center text-center">
                         <h3 class="text-3xl font-semibold text-green-700 mb-4">
@@ -248,13 +278,13 @@
                         <p class="text-lg text-gray-800">
                             Ultralytics menyediakan implementasi resmi dan pre-trained model dari YOLO, yang memudahkan proses pengembangan.
                         </p>
-                        <img src="Ultralytics_Logotype_Original.png" alt="Ultralytics Logo Placeholder" class="mt-4 rounded-md">
+                        <img src="Ultralytics_Logotype_Original.png" alt="Ultralytics Logo" class="mt-4 rounded-md">
                     </div>
                 </div>
             </section>
 
-            <!-- Slide 8: Akuisisi Data -->
-            <section id="slide8" class="slide bg-white rounded-xl shadow-2xl p-10 mb-12 opacity-50 transition-opacity duration-500 ease-in-out transform scale-95">
+            <!-- Slide 9: Akuisisi Data (Updated ID and Content) -->
+            <section id="slide9" class="slide bg-white rounded-xl shadow-2xl p-10 mb-12 opacity-50 transition-opacity duration-500 ease-in-out transform scale-95">
                 <h2 class="text-4xl font-bold text-blue-600 mb-8 text-center">Akuisisi Data</h2>
                 <p class="text-lg text-gray-700 text-center mb-10">
                     Tahap ini adalah tentang mengumpulkan data visual dari objek yang ingin kita deteksi.
@@ -278,8 +308,8 @@
                 </div>
             </section>
 
-            <!-- Slide 9: Labeling Data -->
-            <section id="slide9" class="slide bg-white rounded-xl shadow-2xl p-10 mb-12 opacity-50 transition-opacity duration-500 ease-in-out transform scale-95">
+            <!-- Slide 10: Labeling Data (Updated ID and Content) -->
+            <section id="slide10" class="slide bg-white rounded-xl shadow-2xl p-10 mb-12 opacity-50 transition-opacity duration-500 ease-in-out transform scale-95">
                 <h2 class="text-4xl font-bold text-purple-600 mb-8 text-center">Labeling Data</h2>
                 <p class="text-lg text-gray-700 text-center mb-10">
                     Setelah data video terkumpul, kita perlu mempersiapkannya untuk training:
@@ -321,8 +351,8 @@
                 </div>
             </section>
 
-            <!-- Slide 10: Training Model -->
-            <section id="slide10" class="slide bg-white rounded-xl shadow-2xl p-10 mb-12 opacity-50 transition-opacity duration-500 ease-in-out transform scale-95">
+            <!-- Slide 11: Training Model (Updated ID and Content) -->
+            <section id="slide11" class="slide bg-white rounded-xl shadow-2xl p-10 mb-12 opacity-50 transition-opacity duration-500 ease-in-out transform scale-95">
                 <h2 class="text-4xl font-bold text-teal-600 mb-8 text-center">Training Model</h2>
                 <p class="text-lg text-gray-700 text-center mb-10">
                     Tahap ini adalah inti dari pembuatan model deteksi objek:
@@ -335,11 +365,10 @@
                         <span class="font-semibold text-teal-700">Lakukan Training:</span> Jalankan proses training menggunakan command line atau script Python. Model akan mempelajari pola dari data yang telah dilabeli.
                     </li>
                 </ol>
-                <!-- Placeholder image removed as requested -->
             </section>
 
-            <!-- Slide 11: Testing/Validasi Model -->
-            <section id="slide11" class="slide bg-white rounded-xl shadow-2xl p-10 mb-12 opacity-50 transition-opacity duration-500 ease-in-out transform scale-95">
+            <!-- Slide 12: Testing/Validasi Model (Updated ID and Content) -->
+            <section id="slide12" class="slide bg-white rounded-xl shadow-2xl p-10 mb-12 opacity-50 transition-opacity duration-500 ease-in-out transform scale-95">
                 <h2 class="text-4xl font-bold text-orange-600 mb-8 text-center">Testing/Validasi Model</h2>
                 <p class="text-lg text-gray-700 text-center mb-10">
                     Setelah training selesai, kita perlu mengevaluasi seberapa baik model kita bekerja:
@@ -355,11 +384,10 @@
                         <span class="font-semibold text-orange-700">Mulai Validasi:</span> Jalankan proses validasi untuk mendapatkan metrik performa seperti mean average precision (mAP), yang menunjukkan keakuratan model.
                     </li>
                 </ol>
-                <!-- Placeholder image removed as requested -->
             </section>
 
-            <!-- Slide 12: Implementasi dan Menjalankan Model -->
-            <section id="slide12" class="slide bg-white rounded-xl shadow-2xl p-10 mb-12 opacity-50 transition-opacity duration-500 ease-in-out transform scale-95">
+            <!-- Slide 13: Implementasi dan Menjalankan Model (Updated ID and Content) -->
+            <section id="slide13" class="slide bg-white rounded-xl shadow-2xl p-10 mb-12 opacity-50 transition-opacity duration-500 ease-in-out transform scale-95">
                 <h2 class="text-4xl font-bold text-indigo-600 mb-8 text-center">Implementasi dan Menjalankan Model</h2>
                 <p class="text-lg text-gray-700 text-center mb-10">
                     Tahap terakhir adalah menerapkan model yang telah dilatih pada Raspberry Pi:
@@ -373,7 +401,7 @@
                     </li>
                 </ol>
                 <div class="mt-10 flex justify-center">
-                    <img src="Screenshot (185).png" alt="Raspberry Pi Deployment Placeholder" class="rounded-lg shadow-xl">
+                    <img src="Screenshot (185).png" alt="Raspberry Pi Deployment" class="rounded-lg shadow-xl">
                 </div>
             </section>
 
