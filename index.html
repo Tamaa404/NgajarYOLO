@@ -1,529 +1,542 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI & Edge Computing: Powering Vision with Raspberry Pi & YOLO</title>
+    <title>Pengenalan Raspi dan Model Deteksi Objek YOLO</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Custom styles for active TOC item and scroll behavior */
+        html {
+            scroll-behavior: smooth; /* Smooth scrolling for navigation buttons */
+        }
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f0f4f8; /* Light background */
-            display: flex;
-            height: 100vh;
-            overflow: hidden; /* Prevent body scroll, handle main-content scroll */
+            font-family: 'Inter', sans-serif; /* Recommended font */
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Hide body scrollbar, main content area handles scrolling */
         }
-        .sidebar {
-            width: 30%; /* Set to 30% of page width */
-            background-color: #1a202c; /* Dark background for sidebar */
-            color: #e2e8f0; /* Light text color */
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            overflow-y: auto; /* Scrollable sidebar if content is long */
-            border-top-right-radius: 0.75rem;
-            border-bottom-right-radius: 0.75rem;
-            position: sticky;
-            top: 0;
-            left: 0;
-            height: 100vh;
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
         }
-        .main-content {
-            flex-grow: 1; /* Allows it to take the remaining space (70%) */
-            display: flex;
-            flex-direction: column;
-            padding: 2rem;
-            overflow-y: auto; /* Allow content to scroll if larger than viewport */
-            position: relative;
-            width: 70%; /* Explicitly setting width to 70% makes the flex distribution clear */
+        ::-webkit-scrollbar-track {
+            background: #cbd5e0; /* Light gray */
+            border-radius: 10px;
         }
-        .slide-container {
-            background-color: #ffffff;
-            border-radius: 1rem;
-            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
-            padding: 2.5rem;
-            margin-bottom: 2rem; /* Re-added margin for visual separation between always-visible slides */
-            flex-shrink: 0; /* Prevents slide content from shrinking */
-            display: flex; /* Always display flex */
-            flex-direction: column;
-            opacity: 0.7; /* Make non-active slides slightly transparent */
-            transition: opacity 0.5s ease-in-out;
-            max-width: 100%; /* Ensure responsiveness */
+        ::-webkit-scrollbar-thumb {
+            background: #4a5568; /* Darker gray */
+            border-radius: 10px;
         }
-        .slide-container.active {
-            opacity: 1; /* Full opacity for the active slide */
-        }
-        .nav-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 1.5rem;
-            flex-shrink: 0; /* Prevent buttons from shrinking if slide content is large */
-        }
-        .nav-button {
-            background-color: #4a5568; /* Darker gray for buttons */
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem;
-            font-weight: 600;
-            transition: background-color 0.3s ease;
-            cursor: pointer;
-            border: none; /* Remove default button border */
-        }
-        .nav-button:hover {
-            background-color: #2d3748; /* Even darker on hover */
-        }
-        .nav-button:disabled {
-            background-color: #a0aec0; /* Lighter gray for disabled */
-            cursor: not-allowed;
-        }
-        .toc-item {
-            padding: 0.75rem 1rem;
-            margin-bottom: 0.5rem;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-        .toc-item:hover {
-            background-color: #4a5568; /* Hover background */
-            color: #ffffff;
-        }
-        .toc-item.active {
-            background-color: #4299e1; /* Blue for active */
-            font-weight: 700;
-            color: #ffffff;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 0.75rem; /* Rounded images */
-            margin-top: 1rem;
-            margin-bottom: 1rem;
-            object-fit: contain; /* Ensure images fit without cropping */
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2d3748; /* Even darker gray */
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            body {
-                flex-direction: column;
-                overflow-y: auto; /* Allow scrolling on smaller screens */
-            }
+        /* Ensure slides fill the vertical space appropriately for scrolling */
+        .slide {
+            min-height: 100vh; /* Make each slide at least viewport height for better scrolling experience */
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Vertically center content if it doesn't fill */
+        }
+
+        /* Adjustments for smaller screens (e.g., mobile) */
+        @media (max-width: 768px) { /* md breakpoint */
             .sidebar {
-                width: 100%;
-                height: auto; /* Auto height for sidebar on mobile */
-                border-bottom-left-radius: 0.75rem;
-                border-top-right-radius: 0;
-                position: static; /* Remove sticky position on mobile */
+                width: 100%; /* Full width sidebar on small screens */
+                height: 20vh; /* Shorter height on mobile */
+                position: relative; /* Not fixed anymore */
+                overflow-x: hidden; /* Prevent horizontal scroll in sidebar */
+                overflow-y: auto;
             }
-            .main-content {
-                padding: 1rem;
-                width: 100%; /* Full width on mobile */
+            .main-content-wrapper {
+                width: 100%; /* Full width main content on small screens */
+                margin-left: 0; /* Remove left margin */
+                height: 80vh; /* Remaining height for main content */
+                flex-direction: column; /* Stack content vertically */
             }
-            .slide-container {
-                padding: 1.5rem;
-                height: auto; /* Auto height for slides on mobile */
+            .main-container {
+                flex-direction: column; /* Stack sidebar and main content vertically */
+            }
+            .slide {
+                min-height: 80vh; /* Adjust min-height for slides on mobile */
+                padding: 1rem; /* Smaller padding on mobile */
+            }
+            .nav-buttons {
+                bottom: 2%; /* Adjust button position for smaller screens */
+                right: 2%;
+                left: 2%;
+                justify-content: space-between;
+            }
+            .sidebar h1 {
+                font-size: 2rem; /* Smaller font for title on mobile */
+            }
+            .toc-link {
+                padding: 0.5rem 1rem; /* Smaller padding for TOC links */
+                font-size: 0.9rem;
             }
         }
     </style>
 </head>
-<body>
+<body class="bg-gray-100 text-gray-800">
+    <div class="main-container flex flex-col md:flex-row h-screen">
+        <!-- Table of Contents Sidebar -->
+        <aside class="sidebar md:fixed md:top-0 md:left-0 md:h-screen bg-gray-800 text-white p-6 shadow-2xl transition-all duration-300 ease-in-out z-20 md:w-1/4">
+            <h1 class="text-3xl font-extrabold mb-8 text-center text-blue-300">Daftar Isi</h1>
+            <nav>
+                <ul class="space-y-4">
+                    <li><a href="#slide1" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200 active-toc-item bg-blue-700 font-bold">1. Pengenalan Umum</a></li>
+                    <li><a href="#slide2" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">2. Apa itu Raspberry Pi?</a></li>
+                    <li><a href="#slide3" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">3. Jenis-jenis Raspberry Pi</a></li>
+                    <li><a href="#slide4" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">4. YOLO: You Only Look Once</a></li>
+                    <li><a href="#slide5" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">5. Apa itu YOLO?</a></li>
+                    <li><a href="#slide6" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">6. Tahapan Membuat Model YOLO</a></li>
+                    <li><a href="#slide7" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">7. Instalasi YOLO</a></li>
+                    <li><a href="#slide8" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">8. Akuisisi Data</a></li>
+                    <li><a href="#slide9" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">9. Labeling Data</a></li>
+                    <li><a href="#slide10" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">10. Training Model</a></li>
+                    <li><a href="#slide11" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">11. Testing/Validasi Model</a></li>
+                    <li><a href="#slide12" class="toc-link block px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">12. Implementasi & Run Model</a></li>
+                </ul>
+            </nav>
+        </aside>
 
-    <!-- Table of Contents Sidebar -->
-    <div class="sidebar">
-        <h2 class="text-3xl font-bold mb-6 text-center">Contents</h2>
-        <ul id="toc-list">
-            <li class="toc-item active" data-slide-index="0">Title Slide</li>
-            <li class="toc-item" data-slide-index="1">Introducing the Raspberry Pi</li>
-            <li class="toc-item" data-slide-index="2">Raspi from an AI Perspective: Edge Computing</li>
-            <li class="toc-item" data-slide-index="3">Introduction to YOLO (You Only Look Once)</li>
-            <li class="toc-item" data-slide-index="4">YOLO Practical Steps: 1. Data Capture & Labeling</li>
-            <li class="toc-item" data-slide-index="5">YOLO Practical Steps: 2. Training the Model</li>
-            <li class="toc-item" data-slide-index="6">YOLO Practical Steps: 3. Testing & Evaluation</li>
-            <li class="toc-item" data-slide-index="7">YOLO Practical Steps: 4. Implementation on Raspberry Pi</li>
-            <li class="toc-item" data-slide-index="8">Summary & Q&A</li>
-        </ul>
-    </div>
-
-    <!-- Main Content Area -->
-    <div class="main-content">
-        <div class="slide-wrapper flex flex-col w-full">
-            <!-- Slide 1: Title Slide -->
-            <div id="slide-0" class="slide-container active flex flex-col">
-                <div>
-                    <h1 class="text-5xl font-extrabold text-gray-800 mb-6 text-center">Artificial Intelligence & Edge Computing:</h1>
-                    <h2 class="text-4xl font-semibold text-blue-600 mb-8 text-center">Powering Vision with Raspberry Pi & YOLO</h2>
-                    <p class="text-xl text-gray-600 text-center mb-8">A Practical Introduction for Informatics Students using Raspberry Pi 4B and a Camera</p>
-                    <div class="flex flex-wrap justify-center items-center gap-6 mt-8">
-                        <img src="https://placehold.co/300x200/4a5568/ffffff?text=AI+Concepts" alt="AI Concepts" class="max-w-xs shadow-lg rounded-xl">
-                        <img src="https://placehold.co/200x200/4299e1/ffffff?text=Raspberry+Pi" alt="Raspberry Pi Board" class="max-w-[150px] shadow-lg rounded-xl">
-                        <img src="https://placehold.co/200x200/2d3748/ffffff?text=Camera" alt="Camera Module" class="max-w-[150px] shadow-lg rounded-xl">
-                        <img src="https://placehold.co/150x100/3182ce/ffffff?text=YOLO+Logo" alt="YOLO Logo" class="max-w-[100px] shadow-lg rounded-xl">
-                    </div>
-                    <p class="text-lg text-gray-700 mt-10 leading-relaxed">
-                        Good morning/afternoon everyone! Today, we're diving into an exciting intersection of Artificial Intelligence and practical computing: how tiny, powerful devices like the Raspberry Pi 4B are revolutionizing AI at the 'edge,' and how we can equip them with vision using a camera and a state-of-the-art technique called YOLO.
-                    </p>
+        <!-- Main Content Area -->
+        <main id="main-content" class="main-content-wrapper md:ml-[25%] md:w-[75%] p-8 overflow-y-auto relative z-10">
+            <!-- Slide 1: Pengenalan Umum -->
+            <section id="slide1" class="slide bg-white rounded-xl shadow-2xl p-10 mb-12 opacity-100 transition-opacity duration-500 ease-in-out transform scale-100 flex flex-col items-center justify-center">
+                <h2 class="text-5xl font-extrabold text-center text-blue-700 mb-6 drop-shadow-md">
+                    Pengenalan Raspi dan Model Deteksi Objek YOLO
+                </h2>
+                <p class="text-xl text-gray-700 text-center max-w-2xl leading-relaxed">
+                    Selamat datang di presentasi interaktif tentang kekuatan komputasi mini Raspberry Pi dan efisiensi deteksi objek dengan YOLO.
+                </p>
+                <div class="mt-10">
+                    <img src="64994922cf2a6385a4bf4489_UltralyticsYOLO_mark_blue.svg" alt="Pengenalan Raspberry Pi" class="rounded-lg shadow-xl">
                 </div>
-            </div>
+            </section>
 
-            <!-- Slide 2: Introducing the Raspberry Pi -->
-            <div id="slide-1" class="slide-container flex flex-col">
-                <div>
-                    <h2 class="text-4xl font-bold text-gray-800 mb-6 text-center">Introducing the Raspberry Pi</h2>
-                    <div class="flex flex-col md:flex-row items-center gap-8">
-                        <div class="md:w-1/2">
-                            <ul class="list-disc list-inside text-lg text-gray-700 space-y-3">
-                                <li>A series of small, single-board computers (SBCs).</li>
-                                <li>Developed by the Raspberry Pi Foundation.</li>
-                                <li>Affordable, credit-card sized, low power consumption.</li>
-                                <li>Versatile: Education, IoT, robotics, media centers, prototyping.</li>
-                                <li>Common models: Raspberry Pi 4B, 3, Zero.</li>
-                            </ul>
-                        </div>
-                        <div class="md:w-1/2 flex flex-col items-center">
-                            <img src="https://placehold.co/400x250/2b6cb0/ffffff?text=Raspberry+Pi+4B" alt="Raspberry Pi 4B Board" class="shadow-lg rounded-xl mb-4">
-                            <div class="flex gap-4">
-                                <img src="https://placehold.co/80x80/63b3ed/ffffff?text=Robot" alt="Robot Icon" class="rounded-full">
-                                <img src="https://placehold.co/80x80/63b3ed/ffffff?text=IoT" alt="Smart Home Icon" class="rounded-full">
-                                <img src="https://placehold.co/80x80/63b3ed/ffffff?text=Code" alt="Coding Symbol" class="rounded-full">
-                            </div>
-                        </div>
+            <!-- Slide 2: Apa itu Raspberry Pi? -->
+            <section id="slide2" class="slide bg-white rounded-xl shadow-2xl p-10 mb-12 opacity-50 transition-opacity duration-500 ease-in-out transform scale-95">
+                <h2 class="text-4xl font-bold text-blue-600 mb-8 text-center">Apa itu Raspberry Pi?</h2>
+                <p class="text-lg text-gray-700 text-center mb-10">
+                    Raspberry Pi, atau yang sering disebut Raspi, adalah komputer mini seukuran kartu kredit yang sangat serbaguna. Meskipun ukurannya kecil, kemampuannya tidak bisa diremehkan.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl mx-auto">
+                    <div class="bg-gradient-to-br from-blue-500 to-blue-700 text-white p-6 rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition duration-300">
+                        <h3 class="text-2xl font-semibold mb-4 text-center">Mikrokontroler Powerful</h3>
+                        <p class="text-md text-center">Raspi memiliki CPU dan GPU yang mumpuni, serta kompatibilitas tinggi. Mampu menjalankan sistem operasi dan program Python.</p>
                     </div>
-                    <p class="text-lg text-gray-700 mt-10 leading-relaxed">
-                        Now, let's talk about our little powerhouse: the Raspberry Pi. For those unfamiliar, a Raspberry Pi is essentially a complete computer, often no bigger than a credit card, packed onto a single circuit board. Developed by the Raspberry Pi Foundation, its primary goal was to promote basic computer science education. But its affordability, small size, and low power consumption quickly made it incredibly popular for a vast array of projects, from Internet of Things devices and robotics to media centers and rapid prototyping. For this project, we'll specifically be using the Raspberry Pi 4B. We'll be focusing on its role in AI.
-                    </p>
-                </div>
-            </div>
-
-            <!-- Slide 3: Raspberry Pi from an AI Perspective: Edge Computing -->
-            <div id="slide-2" class="slide-container flex flex-col">
-                <div>
-                    <h2 class="text-4xl font-bold text-gray-800 mb-6 text-center">Raspberry Pi from an AI Perspective: Edge Computing</h2>
-                    <ul class="list-disc list-inside text-lg text-gray-700 space-y-3 mb-6">
-                        <li><strong>Edge Computing:</strong> Processing data closer to the source (the 'edge') rather than sending everything to the cloud.</li>
-                        <li><strong>Why Raspi for AI Edge?</strong>
-                            <ul class="list-circle list-inside ml-4">
-                                <li>Cost-effective: Cheap hardware for deployment.</li>
-                                <li>Low Power: Ideal for battery-powered or remote applications.</li>
-                                <li>Portability: Enables deployment in diverse environments.</li>
-                                <li>Reduced Latency: Faster real-time processing as data doesn't travel far.</li>
-                                <li>Privacy/Security: Data stays local, reducing exposure.</li>
-                            </ul>
-                        </li>
-                        <li><strong>Use Cases:</strong> Smart cameras, industrial monitoring, environmental sensors, robotics.</li>
-                    </ul>
-                    <div class="flex flex-col md:flex-row items-center gap-8 mt-8">
-                        <img src="https://placehold.co/350x200/4299e1/ffffff?text=Edge+vs+Cloud+Diagram" alt="Edge vs. Cloud Computing Diagram" class="md:w-1/2 shadow-lg rounded-xl">
-                        <div class="md:w-1/2 flex flex-wrap justify-center gap-4">
-                            <img src="https://placehold.co/150x150/4a5568/ffffff?text=Smart+Camera" alt="Smart Security Camera" class="shadow-lg rounded-xl">
-                            <img src="https://placehold.co/150x150/4a5568/ffffff?text=Drone+AI" alt="Drone with AI" class="shadow-lg rounded-xl">
-                        </div>
+                    <div class="bg-gradient-to-br from-green-500 to-green-700 text-white p-6 rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition duration-300">
+                        <h3 class="text-2xl font-semibold mb-4 text-center">Mini PC Portabel</h3>
+                        <p class="text-md text-center">Ukuran ringkas dan konsumsi daya rendah menjadikannya PC mini portabel yang ideal untuk berbagai proyek.</p>
                     </div>
-                    <p class="text-lg text-gray-700 mt-10 leading-relaxed">
-                        So, why is the Raspberry Pi so relevant in the world of AI? The answer lies in a concept called 'Edge Computing.' Traditionally, AI models often run on powerful servers in the cloud. Edge computing, however, means processing data right where it's generated – at the 'edge' of the network. The Raspberry Pi is a perfect fit for this. It's cost-effective for wide deployment, consumes very little power, making it great for remote or battery-operated devices, and its portability allows it to be placed virtually anywhere. Crucially, by processing data locally, we reduce latency, meaning faster real-time responses, and enhance privacy since sensitive data doesn't have to leave the device. Think smart cameras doing immediate facial recognition, or industrial sensors detecting anomalies on-site without delay.
-                    </p>
-                </div>
-            </div>
-
-            <!-- Slide 4: Introduction to YOLO (You Only Look Once) -->
-            <div id="slide-3" class="slide-container flex flex-col">
-                <div>
-                    <h2 class="text-4xl font-bold text-gray-800 mb-6 text-center">Introduction to YOLO (You Only Look Once)</h2>
-                    <ul class="list-disc list-inside text-lg text-gray-700 space-y-3 mb-6">
-                        <li><strong>Object Detection:</strong> Identifying and locating objects within an image or video.</li>
-                        <li><strong>YOLO:</strong> A state-of-the-art, real-time object detection system.</li>
-                        <li><strong>'You Only Look Once':</strong> Processes the entire image in a single pass.</li>
-                        <li><strong>Advantages:</strong>
-                            <ul class="list-circle list-inside ml-4">
-                                <li>Speed: Extremely fast, ideal for real-time applications.</li>
-                                <li>Accuracy: Good balance between speed and precision.</li>
-                                <li>Generalization: Learns generalized object representations.</li>
-                            </ul>
-                        </li>
-                        <li><strong>Versions:</strong> YOLOv1, YOLOv2 (YOLO9000), YOLOv3, YOLOv4, YOLOv5, YOLOv7, YOLOv8.</li>
-                    </ul>
-                    <div class="flex flex-col md:flex-row items-center gap-8 mt-8">
-                        <img src="https://placehold.co/400x250/3182ce/ffffff?text=YOLO+Detection+Example" alt="YOLO Object Detection Example" class="md:w-1/2 shadow-lg rounded-xl">
-                        <img src="https://placehold.co/300x200/4a5568/ffffff?text=Single-Pass+vs+Multi-Pass" alt="YOLO Single-Pass Diagram" class="md:w-1/2 shadow-lg rounded-xl">
+                    <div class="bg-gradient-to-br from-purple-500 to-purple-700 text-white p-6 rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition duration-300">
+                        <h3 class="text-2xl font-semibold mb-4 text-center">Penerapan Industri</h3>
+                        <p class="text-md text-center">Fleksibel dan terjangkau, Raspi banyak digunakan di industri untuk otomatisasi, IoT, dan pengembangan prototipe.</p>
                     </div>
-                    <p class="text-lg text-gray-700 mt-10 leading-relaxed">
-                        Now, let's introduce the star of our object detection show: YOLO, which stands for 'You Only Look Once.' Object detection is a core task in computer vision where we not only want to identify what an object is, but also where it is within an image or video, usually by drawing a bounding box around it. YOLO revolutionized this field because, as its name suggests, it processes the entire image in a single pass. This 'one-shot' approach makes it incredibly fast, making it ideal for real-time applications like autonomous vehicles or surveillance. It offers a great balance between speed and accuracy and has evolved through many versions, from YOLOv1 to the latest YOLOv8, each bringing improvements in performance and capabilities.
-                    </p>
                 </div>
-            </div>
+            </section>
 
-            <!-- Slide 5: YOLO Practical Steps: 1. Data Capture & Labeling -->
-            <div id="slide-4" class="slide-container flex flex-col">
-                <div>
-                    <h2 class="text-4xl font-bold text-gray-800 mb-6 text-center">YOLO Practical Steps: 1. Data Capture & Labeling</h2>
-                    <ul class="list-disc list-inside text-lg text-gray-700 space-y-3 mb-6">
-                        <li><strong>Crucial First Step:</strong> High-quality data is paramount for model performance.</li>
-                        <li><strong>Data Capture:</strong>
-                            <ul class="list-circle list-inside ml-4">
-                                <li>Collect diverse images/video frames of the objects you want to detect.</li>
-                                <li>Consider different angles, lighting conditions, backgrounds, occlusions.</li>
-                                <li>Use the same camera/sensor setup as your deployment target (e.g., Raspi camera).</li>
-                            </ul>
-                        </li>
-                        <li><strong>Data Labeling (Annotation):</strong>
-                            <ul class="list-circle list-inside ml-4">
-                                <li>Draw bounding boxes around each object of interest.</li>
-                                <li>Assign a class label to each bounding box.</li>
-                                <li>Tools: LabelImg, Roboflow (for annotation and dataset management).</li>
-                                <li>Output: Creates .txt files for each image, containing object coordinates and class IDs.</li>
-                            </ul>
-                        </li>
-                    </ul>
-                    <div class="flex flex-col md:flex-row items-center gap-8 mt-8">
-                        <img src="https://placehold.co/400x250/2b6cb0/ffffff?text=LabelImg+Screenshot" alt="Screenshot of LabelImg Tool" class="md:w-1/2 shadow-lg rounded-xl">
-                        <div class="md:w-1/2 flex flex-col gap-4">
-                            <img src="https://placehold.co/300x150/4a5568/ffffff?text=Good+Data+Capture" alt="Example of Good Data Capture" class="shadow-lg rounded-xl">
-                            <img src="https://placehold.co/300x150/a0aec0/ffffff?text=Bad+Data+Capture" alt="Example of Bad Data Capture" class="shadow-lg rounded-xl">
-                        </div>
+            <!-- Slide 3: Jenis-jenis Raspberry Pi -->
+            <section id="slide3" class="slide bg-white rounded-xl shadow-2xl p-10 mb-12 opacity-50 transition-opacity duration-500 ease-in-out transform scale-95">
+                <h2 class="text-4xl font-bold text-blue-600 mb-8 text-center">Jenis-jenis Raspberry Pi</h2>
+                <p class="text-lg text-gray-700 text-center mb-10">
+                    Raspberry Pi hadir dalam beberapa model, masing-masing dengan spesifikasi dan kegunaan yang berbeda.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl mx-auto">
+                    <div class="bg-white p-6 rounded-xl shadow-lg border-2 border-pink-300 transform hover:scale-105 transition duration-300">
+                        <img src="pizero.png" alt="Raspberry Pi Zero" class="w-full h-auto object-cover rounded-md mb-4">
+                        <h3 class="text-2xl font-semibold text-pink-600 mb-2">Raspberry Pi Zero</h3>
+                        <p class="text-md text-gray-700">Model paling kecil dan hemat daya. Ideal untuk proyek yang membutuhkan integrasi ke ruang terbatas atau perangkat super portabel.</p>
                     </div>
-                    <p class="text-lg text-gray-700 mt-10 leading-relaxed">
-                        Alright, let's get into the practical side of YOLO. The very first and arguably most critical step is data capture and labeling. Your model will only be as good as the data you feed it. First, you need to capture a diverse set of images or video frames containing the objects you want your YOLO model to detect. Think about different angles, lighting, backgrounds, and even partial occlusions. If you're deploying on a Raspberry Pi with a specific camera, try to collect data using that same camera to ensure consistency. Once you have your images, you move to data labeling, also known as annotation. This is where you manually draw bounding boxes around each object of interest in every image and assign a specific class label to it – for example, 'dog,' 'cat,' or 'person.' Tools like LabelImg or platforms like Roboflow make this process manageable. The output of this step will typically be text files accompanying each image, containing the coordinates of your bounding boxes and their corresponding class IDs. This labeled dataset is the foundation upon which your YOLO model will learn.
-                    </p>
-                </div>
-            </div>
-
-            <!-- Slide 6: YOLO Practical Steps: 2. Training the Model -->
-            <div id="slide-5" class="slide-container flex flex-col">
-                <div>
-                    <h2 class="text-4xl font-bold text-gray-800 mb-6 text-center">YOLO Practical Steps: 2. Training the Model</h2>
-                    <ul class="list-disc list-inside text-lg text-gray-700 space-y-3 mb-6">
-                        <li><strong>Goal:</strong> The model learns to identify patterns from labeled data.</li>
-                        <li><strong>Process:</strong>
-                            <ul class="list-circle list-inside ml-4">
-                                <li>Feed the labeled images to the YOLO algorithm.</li>
-                                <li>The model adjusts its internal parameters (weights) to minimize prediction errors.</li>
-                                <li>Epochs: Number of times the entire dataset is passed through the network.</li>
-                                <li>Loss Function: Measures how far off the predictions are from the true labels.</li>
-                                <li>Optimization: Algorithms (e.g., Adam) adjust weights based on loss.</li>
-                            </ul>
-                        </li>
-                        <li><strong>Requirements:</strong>
-                            <ul class="list-circle list-inside ml-4">
-                                <li>Computational power (GPU recommended, but can be done on CPU for small datasets).</li>
-                                <li>YOLO framework (e.g., PyTorch, TensorFlow implementations of YOLOv5/v8).</li>
-                            </ul>
-                        </li>
-                        <li><strong>Output:</strong> A trained model file (e.g., .pt, .weights).</li>
-                    </ul>
-                    <div class="flex flex-col md:flex-row items-center gap-8 mt-8">
-                        <img src="https://placehold.co/400x250/3182ce/ffffff?text=Training+Loop+Diagram" alt="Training Loop Diagram" class="md:w-1/2 shadow-lg rounded-xl">
-                        <img src="https://placehold.co/300x200/4a5568/ffffff?text=Loss+Graph" alt="Graph of Training Loss" class="md:w-1/2 shadow-lg rounded-xl">
+                    <div class="bg-white p-6 rounded-xl shadow-lg border-2 border-teal-300 transform hover:scale-105 transition duration-300">
+                        <img src="raspi-4.png" alt="Raspberry Pi 4" class="w-full h-auto object-cover rounded-md mb-4">
+                        <h3 class="text-2xl font-semibold text-teal-600 mb-2">Raspberry Pi 4</h3>
+                        <p class="text-md text-gray-700">Model populer dan serbaguna. Performa CPU lebih baik, dukungan RAM besar, dan I/O canggih (USB 3.0, dual-display 4K). Cocok untuk server media, desktop, hingga AI.</p>
                     </div>
-                    <p class="text-lg text-gray-700 mt-10 leading-relaxed">
-                        With our meticulously labeled dataset ready, the next step is training the YOLO model. This is where the magic happens: the model learns to identify the patterns and features associated with the objects you've labeled. You'll feed your labeled images to the YOLO algorithm. During training, the model makes predictions, compares them to the true labels you provided, and calculates a 'loss' – essentially, how wrong its predictions were. Based on this loss, an optimization algorithm adjusts the model's internal parameters, or 'weights,' to reduce future errors. This process is repeated over many 'epochs,' which is the number of times the entire dataset is passed through the network. While powerful GPUs significantly speed up training, smaller datasets can sometimes be trained on CPUs. You'll use a YOLO framework implementation, often in PyTorch or TensorFlow, to handle this process. The ultimate output of this step is a trained model file, which now contains all the learned knowledge needed to detect your objects.
-                    </p>
-                </div>
-            </div>
-
-            <!-- Slide 7: YOLO Practical Steps: 3. Testing & Evaluation -->
-            <div id="slide-6" class="slide-container flex flex-col">
-                <div>
-                    <h2 class="text-4xl font-bold text-gray-800 mb-6 text-center">YOLO Practical Steps: 3. Testing & Evaluation</h2>
-                    <ul class="list-disc list-inside text-lg text-gray-700 space-y-3 mb-6">
-                        <li><strong>Purpose:</strong> Assess the trained model's performance on unseen data.</li>
-                        <li><strong>Test Set:</strong> A portion of your original dataset (e.g., 10-20%) kept separate and never used for training.</li>
-                        <li><strong>Metrics:</strong>
-                            <ul class="list-circle list-inside ml-4">
-                                <li>IoU (Intersection over Union): How much the predicted bounding box overlaps with the true bounding box.</li>
-                                <li>Precision: Of all detections, how many were correct?</li>
-                                <li>Recall: Of all actual objects, how many did the model detect?</li>
-                                <li>mAP (mean Average Precision): A common metric for object detection, combining precision and recall across multiple classes.</li>
-                            </ul>
-                        </li>
-                        <li><strong>Visual Inspection:</strong> Manually check predictions on test images to understand strengths and weaknesses.</li>
-                    </ul>
-                    <div class="flex flex-col md:flex-row items-center gap-8 mt-8">
-                        <img src="https://placehold.co/400x250/2b6cb0/ffffff?text=IoU+Example" alt="IoU (Intersection over Union) Example" class="md:w-1/2 shadow-lg rounded-xl">
-                        <img src="https://placehold.co/300x200/4a5568/ffffff?text=Metrics+Chart" alt="Bar Chart of Metrics" class="md:w-1/2 shadow-lg rounded-xl">
+                    <div class="bg-white p-6 rounded-xl shadow-lg border-2 border-orange-300 transform hover:scale-105 transition duration-300">
+                        <img src="pi-5.png" alt="Raspberry Pi 5" class="w-full h-auto object-cover rounded-md mb-4">
+                        <h3 class="text-2xl font-semibold text-orange-600 mb-2">Raspberry Pi 5</h3>
+                        <p class="text-md text-gray-700">Model terbaru dengan peningkatan performa signifikan. Kecepatan CPU dan grafis lebih tinggi. Pilihan terbaik untuk komputasi berat dan performa tinggi.</p>
                     </div>
-                    <p class="text-lg text-gray-700 mt-10 leading-relaxed">
-                        After training, it's crucial to test and evaluate our model to ensure it performs well on data it has never seen before. For this, we use a 'test set,' which is a portion of our original dataset that was strictly kept separate from the training data. We then run our trained model on these unseen images and measure its performance using several key metrics. Metrics like 'Intersection over Union' or IoU, tell us how well our predicted bounding boxes overlap with the actual object's true location. 'Precision' indicates how many of our detections were actually correct, while 'Recall' tells us how many of the actual objects in the image the model managed to find. Finally, 'mean Average Precision,' or mAP, is a comprehensive metric commonly used in object detection that combines these aspects. Beyond these numerical metrics, visual inspection – simply looking at the predictions on test images – is invaluable for understanding where your model excels and where it might need further refinement.
-                    </p>
                 </div>
-            </div>
+            </section>
 
-            <!-- Slide 8: YOLO Practical Steps: 4. Implementation on Raspberry Pi -->
-            <div id="slide-7" class="slide-container flex flex-col">
-                <div>
-                    <h2 class="text-4xl font-bold text-gray-800 mb-6 text-center">YOLO Practical Steps: 4. Implementation on Raspberry Pi</h2>
-                    <ul class="list-disc list-inside text-lg text-gray-700 space-y-3 mb-6">
-                        <li><strong>Deployment Goal:</strong> Run the trained YOLO model on the Raspi for real-time inference.</li>
-                        <li><strong>Steps:</strong>
-                            <ul class="list-circle list-inside ml-4">
-                                <li>Transfer Model: Copy the trained .pt or .weights file to the Raspberry Pi.</li>
-                                <li>Install Dependencies: Install necessary libraries (e.g., OpenCV, PyTorch/TensorFlow Lite runtime) on Raspi.</li>
-                            </ul>
-                        </li>
-                        <li><strong>Optimize for Edge:</strong>
-                            <ul class="list-circle list-inside ml-4">
-                                <li>Quantization: Convert model weights to lower precision (e.g., 8-bit integers) to reduce size and speed up inference.</li>
-                                <li>TensorFlow Lite / OpenVINO: Use optimized runtimes for edge devices.</li>
-                            </ul>
-                        </li>
-                        <li><strong>Write Inference Script:</strong> Python script to:
-                            <ul class="list-square list-inside ml-6">
-                                <li>Load the model.</li>
-                                <li>Access Raspi camera (e.g., Picamera2, OpenCV).</li>
-                                <li>Pre-process camera frames.</li>
-                                <li>Run inference using the loaded model.</li>
-                                <li>Draw bounding boxes and labels on the frames.</li>
-                                <li>Display results.</li>
-                            </ul>
-                        </li>
-                        <li><strong>Considerations:</strong> Frame rate, power consumption, model size.</li>
-                    </ul>
-                    <div class="flex flex-col md:flex-row items-center gap-8 mt-8">
-                        <img src="https://placehold.co/400x250/3182ce/ffffff?text=Raspi+Inference+Flowchart" alt="Raspberry Pi Inference Flowchart" class="md:w-1/2 shadow-lg rounded-xl">
-                        <img src="https://placehold.co/300x200/4a5568/ffffff?text=Live+Detection+on+Raspi" alt="Live Object Detection on Raspberry Pi" class="md:w-1/2 shadow-lg rounded-xl">
+            <!-- Slide 4: YOLO: You Only Look Once -->
+            <section id="slide4" class="slide bg-white rounded-xl shadow-2xl p-10 mb-12 opacity-50 transition-opacity duration-500 ease-in-out transform scale-95 flex flex-col items-center justify-center">
+                <h2 class="text-6xl font-extrabold text-center text-red-600 mb-8 drop-shadow-md">
+                    YOLO
+                </h2>
+                <p class="text-4xl font-semibold text-gray-700 text-center max-w-3xl leading-relaxed">
+                    (YOU ONLY LOOK ONCE)
+                </p>
+                <div class="mt-12">
+                    <img src="64994922cf2a6385a4bf4489_UltralyticsYOLO_mark_blue.svg" alt="YOLO Logo Placeholder" class="rounded-lg shadow-xl">
+                </div>
+            </section>
+
+            <!-- Slide 5: Apa itu YOLO? (Detail) -->
+            <section id="slide5" class="slide bg-white rounded-xl shadow-2xl p-10 mb-12 opacity-50 transition-opacity duration-500 ease-in-out transform scale-95">
+                <h2 class="text-4xl font-bold text-red-600 mb-8 text-center">Apa itu YOLO? </h2>
+                <p class="text-lg text-gray-700 text-center mb-10">
+                    YOLO (You Only Look Once) adalah sebuah arsitektur jaringan saraf tiruan (neural network) yang dirancang khusus untuk deteksi objek real-time. Berbeda dengan metode deteksi objek tradisional yang menggunakan banyak tahap, YOLO memproses seluruh gambar dalam satu kali proses.
+                </p>
+                <ul class="text-xl text-gray-700 space-y-4 max-w-4xl mx-auto list-disc pl-6">
+                    <li class="bg-gray-50 p-4 rounded-lg shadow-md border-l-4 border-red-500">
+                        <span class="font-semibold text-red-700">Menggunakan Lapisan Konvolusi (Convolutional Layers):</span> YOLO sepenuhnya menggunakan lapisan konvolusi untuk mengekstrak fitur dari gambar, bukan lapisan fully connected yang seringkali lebih berat.
+                    </li>
+                    <li class="bg-gray-50 p-4 rounded-lg shadow-md border-l-4 border-red-500">
+                        <span class="font-semibold text-red-700">Ringan, Cepat, dan Akurat:</span> Keunggulan utama YOLO adalah kemampuannya untuk mendeteksi objek dengan sangat cepat dan akurat, bahkan pada perangkat dengan sumber daya terbatas seperti Raspberry Pi. Ini membuatnya ideal untuk aplikasi real-time.
+                    </li>
+                </ul>
+                <div class="mt-10 flex justify-center">
+                    <img src="architecture.png" alt="YOLO Architecture Placeholder" class="rounded-lg shadow-xl">
+                </div>
+            </section>
+
+            <!-- Slide 6: Tahapan Membuat Model YOLO -->
+            <section id="slide6" class="slide bg-white rounded-xl shadow-2xl p-10 mb-12 opacity-50 transition-opacity duration-500 ease-in-out transform scale-95">
+                <h2 class="text-4xl font-bold text-red-600 mb-8 text-center">Tahapan Membuat Model YOLO</h2>
+                <p class="text-lg text-gray-700 text-center mb-10">
+                    Membangun model deteksi objek YOLO melibatkan beberapa tahapan penting:
+                </p>
+                <ol class="text-xl text-gray-700 space-y-4 max-w-3xl mx-auto list-decimal pl-6">
+                    <li class="bg-blue-50 p-4 rounded-lg shadow-md border-l-4 border-blue-600">
+                        <span class="font-semibold text-blue-800">Instalasi YOLO:</span> Menyiapkan lingkungan pengembangan.
+                    </li>
+                    <li class="bg-green-50 p-4 rounded-lg shadow-md border-l-4 border-green-600">
+                        <span class="font-semibold text-green-800">Akuisisi Data:</span> Mengumpulkan gambar atau video dari objek yang ingin dideteksi.
+                    </li>
+                    <li class="bg-purple-50 p-4 rounded-lg shadow-md border-l-4 border-purple-600">
+                        <span class="font-semibold text-purple-800">Labeling:</span> Memberi label pada objek-objek dalam data akuisisi.
+                    </li>
+                    <li class="bg-yellow-50 p-4 rounded-lg shadow-md border-l-4 border-yellow-600">
+                        <span class="font-semibold text-yellow-800">Training:</span> Melatih model YOLO menggunakan data yang sudah dilabeli.
+                    </li>
+                    <li class="bg-red-50 p-4 rounded-lg shadow-md border-l-4 border-red-600">
+                        <span class="font-semibold text-red-800">Validasi/Testing:</span> Menguji performa model yang telah dilatih.
+                    </li>
+                    <li class="bg-indigo-50 p-4 rounded-lg shadow-md border-l-4 border-indigo-600">
+                        <span class="font-semibold text-indigo-800">Implementasi/Run:</span> Menerapkan model pada perangkat target (misalnya Raspberry Pi) untuk deteksi objek.
+                    </li>
+                </ol>
+            </section>
+
+            <!-- Slide 7: Instalasi YOLO -->
+            <section id="slide7" class="slide bg-white rounded-xl shadow-2xl p-10 mb-12 opacity-50 transition-opacity duration-500 ease-in-out transform scale-95">
+                <h2 class="text-4xl font-bold text-blue-600 mb-8 text-center">Instalasi YOLO</h2>
+                <p class="text-lg text-gray-700 text-center mb-10">
+                    Untuk memulai, kita perlu menginstal beberapa library penting:
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl mx-auto">
+                    <div class="bg-blue-100 p-6 rounded-xl shadow-lg border-l-4 border-blue-500 flex flex-col items-center justify-center text-center">
+                        <h3 class="text-3xl font-semibold text-blue-700 mb-4">
+                            <a href="https://pytorch.org/get-started/locally/" target="_blank" class="text-blue-700 hover:underline">Instal PyTorch</a>
+                        </h3>
+                        <p class="text-lg text-gray-800">
+                            PyTorch adalah framework deep learning yang akan digunakan oleh YOLO.
+                        </p>
+                        <img src="newsroom-pytorch-logo.png" alt="PyTorch Logo Placeholder" class="mt-4 rounded-md">
                     </div>
-                    <p class="text-lg text-gray-700 mt-10 leading-relaxed">
-                        Finally, the exciting part: implementing our trained YOLO model on the Raspberry Pi. The goal here is to get our model running on the Raspberry Pi 4B for real-time object detection. First, you'll transfer your trained model file, usually a .pt or .weights file, to the Raspberry Pi. Next, you'll need to install all the required software dependencies, such as OpenCV for camera access and image processing, and specifically, the runtime for your chosen deep learning framework, often a lightweight version like PyTorch's torch.jit.load or TensorFlow Lite for optimized performance on edge devices. A crucial step for edge deployment is optimization. Techniques like 'quantization' convert your model's weights to lower precision, significantly reducing its size and speeding up inference without much loss in accuracy. You'll then write a Python script on the Raspberry Pi. This script will load your optimized model, access the Raspberry Pi's camera – either through Picamera2 or OpenCV – capture frames, preprocess them, run the inference using your YOLO model, and finally, draw the detected bounding boxes and labels directly onto the video feed, which you can then display. During this phase, you'll be constantly monitoring factors like frame rate and overall power consumption to ensure your application runs smoothly and efficiently.
-                    </p>
-                </div>
-            </div>
-
-            <!-- Slide 9: Summary & Q&A -->
-            <div id="slide-8" class="slide-container flex flex-col">
-                <div>
-                    <h2 class="text-4xl font-bold text-gray-800 mb-6 text-center">Summary & Questions</h2>
-                    <ul class="list-disc list-inside text-lg text-gray-700 space-y-3 mb-6">
-                        <li>Raspberry Pi enables powerful AI at the 'edge'.</li>
-                        <li>YOLO provides fast, accurate object detection.</li>
-                        <li>The pipeline: Data -> Train -> Test -> Deploy.</li>
-                        <li>Future possibilities are immense!</li>
-                    </ul>
-                    <div class="flex justify-center items-center gap-6 mt-8">
-                        <img src="https://placehold.co/200x200/4299e1/ffffff?text=AI+Edge+Icon" alt="AI and Edge Computing Icon" class="rounded-full shadow-lg">
-                        <img src="https://placehold.co/150x150/4a5568/ffffff?text=Q%26A" alt="Questions and Answers Icon" class="rounded-full shadow-lg">
+                    <div class="bg-green-100 p-6 rounded-xl shadow-lg border-l-4 border-green-500 flex flex-col items-center justify-center text-center">
+                        <h3 class="text-3xl font-semibold text-green-700 mb-4">
+                            <a href="https://docs.ultralytics.com/" target="_blank" class="text-green-700 hover:underline">Instal Ultralytics</a>
+                        </h3>
+                        <p class="text-lg text-gray-800">
+                            Ultralytics menyediakan implementasi resmi dan pre-trained model dari YOLO, yang memudahkan proses pengembangan.
+                        </p>
+                        <img src="Ultralytics_Logotype_Original.png" alt="Ultralytics Logo Placeholder" class="mt-4 rounded-md">
                     </div>
-                    <p class="text-lg text-gray-700 mt-10 leading-relaxed text-center">
-                        To summarize what we've covered today: we explored the Raspberry Pi 4B, a remarkable single-board computer that serves as an excellent platform for 'edge computing,' bringing AI closer to the data source. Finally, we delved into YOLO, a groundbreaking object detection system renowned for its speed and accuracy, and outlined the practical steps involved: from meticulously collecting and labeling your data, through training and testing your model, to finally deploying it efficiently on a Raspberry Pi with its camera. This combination opens up immense possibilities for real-world applications. Thank you for your attention. I'm now open for any questions you might have!
-                    </p>
                 </div>
-            </div>
+            </section>
 
-            <!-- Navigation Buttons -->
-            <div class="nav-buttons w-full mt-4">
-                <button id="prevBtn" class="nav-button">Previous</button>
-                <button id="nextBtn" class="nav-button">Next</button>
-            </div>
+            <!-- Slide 8: Akuisisi Data -->
+            <section id="slide8" class="slide bg-white rounded-xl shadow-2xl p-10 mb-12 opacity-50 transition-opacity duration-500 ease-in-out transform scale-95">
+                <h2 class="text-4xl font-bold text-blue-600 mb-8 text-center">Akuisisi Data</h2>
+                <p class="text-lg text-gray-700 text-center mb-10">
+                    Tahap ini adalah tentang mengumpulkan data visual dari objek yang ingin kita deteksi.
+                </p>
+                <p class="text-xl font-medium text-gray-800 text-center mb-12">
+                    Sebagai contoh, kita dapat mengambil data berupa video menggunakan Raspberry Pi dan webcam. Video ini akan berisi berbagai frame dari objek yang berbeda-beda.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl mx-auto">
+                    <div class="bg-gray-50 p-4 rounded-xl shadow-md border-l-4 border-blue-400">
+                        <img src="frame_00065.jpg" alt="Screenshot Video Frame 1" class="rounded-lg shadow-inner mb-3">
+                        <p class="text-sm text-gray-600 text-center">Contoh frame dari Webcam.</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl shadow-md border-l-4 border-blue-400">
+                        <img src="frame_00220.jpg" alt="Screenshot Video Frame 2" class="rounded-lg shadow-inner mb-3">
+                        <p class="text-sm text-gray-600 text-center">Contoh frame dari Raspi.</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl shadow-md border-l-4 border-blue-400">
+                        <img src="train_batch1.jpg" alt="Screenshot Video Frame 3" class="rounded-lg shadow-inner mb-3">
+                        <p class="text-sm text-gray-600 text-center">Variasi posisi objek.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 9: Labeling Data -->
+            <section id="slide9" class="slide bg-white rounded-xl shadow-2xl p-10 mb-12 opacity-50 transition-opacity duration-500 ease-in-out transform scale-95">
+                <h2 class="text-4xl font-bold text-purple-600 mb-8 text-center">Labeling Data</h2>
+                <p class="text-lg text-gray-700 text-center mb-10">
+                    Setelah data video terkumpul, kita perlu mempersiapkannya untuk training:
+                </p>
+                <ol class="text-xl text-gray-700 space-y-4 max-w-4xl mx-auto list-decimal pl-6">
+                    <li class="bg-purple-50 p-4 rounded-lg shadow-md border-l-4 border-purple-500">
+                        <span class="font-semibold text-purple-700">Ekstraksi Gambar:</span> Dari video yang telah diambil, kita akan mengambil gambar setiap 5 frame. Ini membantu mengurangi redundansi data dan mempercepat proses.
+                    </li>
+                    <li class="bg-purple-50 p-4 rounded-lg shadow-md border-l-4 border-purple-500">
+                        <span class="font-semibold text-purple-700">Pembuangan Data Tidak Perlu:</span> Hapus gambar-gambar yang tidak relevan atau tidak diperlukan untuk training yang optimal.
+                    </li>
+                    <li class="bg-purple-50 p-4 rounded-lg shadow-md border-l-4 border-purple-500">
+                        <span class="font-semibold text-purple-700">Unggah ke Roboflow:</span> Unggah gambar-gambar yang sudah bersih ke platform Roboflow. Roboflow adalah alat bantu yang sangat efisien untuk proses labeling.
+                    </li>
+                    <li class="bg-purple-50 p-4 rounded-lg shadow-md border-l-4 border-purple-500">
+                        <span class="font-semibold text-purple-700">Mulai Labeling:</span> Di Roboflow, kita akan mulai memberi label pada setiap objek yang ada di gambar. Proses ini melibatkan penggambaran kotak bounding box di sekitar objek dan memberikan label kategori.
+                    </li>
+                    <li class="bg-purple-50 p-4 rounded-lg shadow-md border-l-4 border-purple-500">
+                        <span class="font-semibold text-purple-700">Unduh Dataset:</span> Setelah proses labeling selesai, unduh dataset dalam format yang sesuai untuk training YOLO.
+                    </li>
+                </ol>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-6xl mx-auto mt-10">
+                    <div class="bg-gray-50 p-4 rounded-xl shadow-md border-l-4 border-purple-400">
+                        <img src="Ekstrak Data.png" alt="Ilustrasi Ekstraksi Frame" class="rounded-lg shadow-inner mb-3">
+                        <p class="text-sm text-gray-600 text-center">Ekstraksi frame dari video.</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl shadow-md border-l-4 border-purple-400">
+                        <img src="pilihdata.png" alt="Ilustrasi Memilih Objek" class="rounded-lg shadow-inner mb-3">
+                        <p class="text-sm text-gray-600 text-center">Memilih objek yang akan dilabeli.</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl shadow-md border-l-4 border-purple-400">
+                        <img src="Labeldata.png" alt="Ilustrasi Menggambar Bounding Box" class="rounded-lg shadow-inner mb-3">
+                        <p class="text-sm text-gray-600 text-center">Menggambar kotak pembatas (bounding box).</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl shadow-md border-l-4 border-purple-400">
+                        <img src="Datafina;.png" alt="Ilustrasi Dataset Siap Unduh" class="rounded-lg shadow-inner mb-3">
+                        <p class="text-sm text-gray-600 text-center">Dataset siap untuk diunduh.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 10: Training Model -->
+            <section id="slide10" class="slide bg-white rounded-xl shadow-2xl p-10 mb-12 opacity-50 transition-opacity duration-500 ease-in-out transform scale-95">
+                <h2 class="text-4xl font-bold text-teal-600 mb-8 text-center">Training Model</h2>
+                <p class="text-lg text-gray-700 text-center mb-10">
+                    Tahap ini adalah inti dari pembuatan model deteksi objek:
+                </p>
+                <ol class="text-xl text-gray-700 space-y-4 max-w-3xl mx-auto list-decimal pl-6">
+                    <li class="bg-teal-50 p-4 rounded-lg shadow-md border-l-4 border-teal-500">
+                        <span class="font-semibold text-teal-700">Tentukan Skema dan Rencana Training:</span> Tentukan parameter training seperti jumlah epoch, batch size, learning rate, dan konfigurasi model yang akan digunakan.
+                    </li>
+                    <li class="bg-teal-50 p-4 rounded-lg shadow-md border-l-4 border-teal-500">
+                        <span class="font-semibold text-teal-700">Lakukan Training:</span> Jalankan proses training menggunakan command line atau script Python. Model akan mempelajari pola dari data yang telah dilabeli.
+                    </li>
+                </ol>
+                <!-- Placeholder image removed as requested -->
+            </section>
+
+            <!-- Slide 11: Testing/Validasi Model -->
+            <section id="slide11" class="slide bg-white rounded-xl shadow-2xl p-10 mb-12 opacity-50 transition-opacity duration-500 ease-in-out transform scale-95">
+                <h2 class="text-4xl font-bold text-orange-600 mb-8 text-center">Testing/Validasi Model</h2>
+                <p class="text-lg text-gray-700 text-center mb-10">
+                    Setelah training selesai, kita perlu mengevaluasi seberapa baik model kita bekerja:
+                </p>
+                <ol class="text-xl text-gray-700 space-y-4 max-w-3xl mx-auto list-decimal pl-6">
+                    <li class="bg-orange-50 p-4 rounded-lg shadow-md border-l-4 border-orange-500">
+                        <span class="font-semibold text-orange-700">Panggil Kode Validasi dari YOLO:</span> Gunakan script validasi yang disediakan oleh Ultralytics YOLO.
+                    </li>
+                    <li class="bg-orange-50 p-4 rounded-lg shadow-md border-l-4 border-orange-500">
+                        <span class="font-semibold text-orange-700">Sesuaikan File YAML:</span> Pastikan file konfigurasi (.yaml) yang digunakan untuk validasi sesuai dengan dataset dan model yang telah dilatih.
+                    </li>
+                    <li class="bg-orange-50 p-4 rounded-lg shadow-md border-l-4 border-orange-500">
+                        <span class="font-semibold text-orange-700">Mulai Validasi:</span> Jalankan proses validasi untuk mendapatkan metrik performa seperti mean average precision (mAP), yang menunjukkan keakuratan model.
+                    </li>
+                </ol>
+                <!-- Placeholder image removed as requested -->
+            </section>
+
+            <!-- Slide 12: Implementasi dan Menjalankan Model -->
+            <section id="slide12" class="slide bg-white rounded-xl shadow-2xl p-10 mb-12 opacity-50 transition-opacity duration-500 ease-in-out transform scale-95">
+                <h2 class="text-4xl font-bold text-indigo-600 mb-8 text-center">Implementasi dan Menjalankan Model</h2>
+                <p class="text-lg text-gray-700 text-center mb-10">
+                    Tahap terakhir adalah menerapkan model yang telah dilatih pada Raspberry Pi:
+                </p>
+                <ol class="text-xl text-gray-700 space-y-4 max-w-3xl mx-auto list-decimal pl-6">
+                    <li class="bg-indigo-50 p-4 rounded-lg shadow-md border-l-4 border-indigo-500">
+                        <span class="font-semibold text-indigo-700">Gunakan Template yang Disediakan:</span> Manfaatkan template kode yang tersedia dari Ultralytics atau komunitas YOLO untuk implementasi.
+                    </li>
+                    <li class="bg-indigo-50 p-4 rounded-lg shadow-md border-l-4 border-indigo-500">
+                        <span class="font-semibold text-indigo-700">Sesuaikan Kode untuk Raspi:</span> Lakukan penyesuaian pada kode agar dapat berjalan optimal di lingkungan Raspberry Pi, termasuk konfigurasi akses kamera dan output deteksi.
+                    </li>
+                </ol>
+                <div class="mt-10 flex justify-center">
+                    <img src="Screenshot (185).png" alt="Raspberry Pi Deployment Placeholder" class="rounded-lg shadow-xl">
+                </div>
+            </section>
+
+            <!-- Spacer at the bottom to ensure last slide can be fully scrolled into view -->
+            <div class="h-20"></div>
+        </main>
+
+        <!-- Navigation Buttons -->
+        <div class="nav-buttons fixed bottom-8 right-8 z-50 flex space-x-4">
+            <button id="prevBtn" class="px-6 py-3 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition duration-300 ease-in-out transform hover:-translate-y-1 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                Sebelumnya
+            </button>
+            <button id="nextBtn" class="px-6 py-3 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition duration-300 ease-in-out transform hover:-translate-y-1 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                Selanjutnya
+            </button>
         </div>
     </div>
 
     <script>
-        // JavaScript for slide navigation and TOC interaction
-        const slides = document.querySelectorAll('.slide-container');
-        const tocItems = document.querySelectorAll('.toc-item');
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        let currentSlideIndex = 0; // Tracks the currently active slide index
-        const mainContent = document.querySelector('.main-content');
+        document.addEventListener('DOMContentLoaded', () => {
+            const mainContent = document.getElementById('main-content');
+            const slides = Array.from(document.querySelectorAll('.slide'));
+            const tocLinks = Array.from(document.querySelectorAll('.toc-link'));
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
 
-        // Function to update the active slide (opacity and TOC highlight)
-        function updateActiveSlide(index) {
-            // Only update if the active slide has actually changed
-            if (index === currentSlideIndex) {
-                // Still ensure buttons are correctly enabled/disabled even if the index didn't change (e.g., initial load)
-                prevBtn.disabled = index === 0;
-                nextBtn.disabled = index === slides.length - 1;
-                return;
-            }
+            // Variable to keep track of the currently active slide's ID
+            let currentActiveSlideId = null;
 
-            slides.forEach((slide, i) => {
-                if (i === index) {
-                    slide.classList.add('active'); // Make the active slide fully opaque
-                } else {
-                    slide.classList.remove('active'); // Make other slides slightly transparent
+            /**
+             * Updates the active slide and TOC link based on scroll position.
+             * It iterates through slides and checks which one is most visible in the viewport.
+             */
+            const updateActiveSlide = () => {
+                const mainScrollTop = mainContent.scrollTop; // Current scroll position of main content
+                let newActiveSlideId = null;
+
+                // Determine the most visible slide
+                // Iterate in reverse to prioritize slides further down when multiple are partially visible
+                for (let i = slides.length - 1; i >= 0; i--) {
+                    const slide = slides[i];
+                    const slideRect = slide.getBoundingClientRect(); // Get position relative to viewport
+                    const mainContentRect = mainContent.getBoundingClientRect();
+
+                    // Calculate slide's position relative to the main content's scrollable area
+                    // A slide is considered active if its top edge is within the upper half of the main content's visible area,
+                    // or if its center is within the visible area.
+                    // Adjusting the offset (e.g., -mainContentRect.top + 50) helps in smooth transitions.
+                    const slideTopRelativeToMainContent = slideRect.top - mainContentRect.top + mainScrollTop;
+
+                    // Check if the slide is significantly in view
+                    // This logic considers the slide active if its top is above a certain threshold,
+                    // and its bottom is below another threshold, relative to the scroll top.
+                    // Using a threshold like 1/3 or 1/2 of the viewport height for better activation.
+                    const viewportHeight = mainContent.offsetHeight; // Height of the scrollable main content area
+                    const activationThreshold = viewportHeight * 0.3; // Activate when 30% of slide is visible from top
+
+                    if (slideTopRelativeToMainContent <= mainScrollTop + activationThreshold &&
+                        slideTopRelativeToMainContent + slide.offsetHeight > mainScrollTop + activationThreshold) {
+                        newActiveSlideId = slide.id;
+                        break; // Found the most relevant slide, break loop
+                    }
+                }
+
+                // If no slide is active (e.g., at the very top before first slide scrolls), activate the first one
+                if (!newActiveSlideId && slides.length > 0) {
+                    newActiveSlideId = slides[0].id;
+                }
+
+                // Only update if the active slide has changed
+                if (newActiveSlideId && newActiveSlideId !== currentActiveSlideId) {
+                    // Deactivate previously active slide and TOC link
+                    if (currentActiveSlideId) {
+                        const prevSlide = document.getElementById(currentActiveSlideId);
+                        if (prevSlide) {
+                            prevSlide.classList.remove('opacity-100', 'scale-100');
+                            prevSlide.classList.add('opacity-50', 'scale-95');
+                        }
+                        const prevTocLink = document.querySelector(`.toc-link[href="#${currentActiveSlideId}"]`);
+                        if (prevTocLink) {
+                            prevTocLink.classList.remove('bg-blue-700', 'font-bold');
+                        }
+                    }
+
+                    // Activate new current slide and TOC link
+                    const currentSlide = document.getElementById(newActiveSlideId);
+                    if (currentSlide) {
+                        currentSlide.classList.remove('opacity-50', 'scale-95');
+                        currentSlide.classList.add('opacity-100', 'scale-100');
+                    }
+                    const currentTocLink = document.querySelector(`.toc-link[href="#${newActiveSlideId}"]`);
+                    if (currentTocLink) {
+                        currentTocLink.classList.add('bg-blue-700', 'font-bold');
+                    }
+                    currentActiveSlideId = newActiveSlideId;
+
+                    // Update navigation button states
+                    const currentIndex = slides.findIndex(slide => slide.id === currentActiveSlideId);
+                    prevBtn.disabled = currentIndex === 0;
+                    nextBtn.disabled = currentIndex === slides.length - 1;
+
+                    // Apply disabled styling
+                    if (prevBtn.disabled) {
+                        prevBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    } else {
+                        prevBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
+                    if (nextBtn.disabled) {
+                        nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    } else {
+                        nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
+                }
+            };
+
+            /**
+             * Scrolls the main content area to a specific slide.
+             * @param {string} slideId - The ID of the slide to scroll to.
+             */
+            const scrollToSlide = (slideId) => {
+                const targetSlide = document.getElementById(slideId);
+                if (targetSlide) {
+                    // Calculate scroll position to place the slide at the top of the main content area
+                    const mainContentTop = mainContent.getBoundingClientRect().top;
+                    const targetSlideTop = targetSlide.getBoundingClientRect().top;
+                    mainContent.scrollTo({
+                        top: mainContent.scrollTop + (targetSlideTop - mainContentTop),
+                        behavior: 'smooth'
+                    });
+                }
+            };
+
+            // Event Listeners
+            mainContent.addEventListener('scroll', updateActiveSlide);
+
+            // Previous button click handler
+            prevBtn.addEventListener('click', () => {
+                const currentIndex = slides.findIndex(slide => slide.id === currentActiveSlideId);
+                if (currentIndex > 0) {
+                    scrollToSlide(slides[currentIndex - 1].id);
                 }
             });
 
-            tocItems.forEach((item, i) => {
-                if (i === index) {
-                    item.classList.add('active'); // Highlight active item in TOC
-                } else {
-                    item.classList.remove('active');
+            // Next button click handler
+            nextBtn.addEventListener('click', () => {
+                const currentIndex = slides.findIndex(slide => slide.id === currentActiveSlideId);
+                if (currentIndex < slides.length - 1) {
+                    scrollToSlide(slides[currentIndex + 1].id);
                 }
             });
 
-            currentSlideIndex = index; // Update the global active slide index
-            prevBtn.disabled = index === 0;
-            nextBtn.disabled = index === slides.length - 1;
-        }
-
-        // Function to handle scroll events for auto-switching
-        mainContent.addEventListener('scroll', () => {
-            let newActiveIndex = 0; // Default to the first slide
-
-            // Iterate through slides to find which one is currently most visible at the top
-            for (let i = 0; i < slides.length; i++) {
-                const slide = slides[i];
-                // Get the position of the slide relative to the viewport of mainContent
-                const rect = slide.getBoundingClientRect();
-                const mainContentRect = mainContent.getBoundingClientRect();
-
-                // Calculate the slide's top position relative to the mainContent's scrollable area
-                // A slide is considered "active" if its top is within a small buffer from the mainContent's top
-                // and it is currently visible.
-                if (rect.top <= mainContentRect.top + 50 && rect.bottom > mainContentRect.top) {
-                    newActiveIndex = i;
-                }
-                // Break early if we've passed the current top-most visible slide
-                // This optimization assumes slides are ordered vertically and there's no complex overlap
-                if (rect.top > mainContentRect.top + 50) {
-                    break;
-                }
-            }
-
-            // Update the active state only if the determined active slide has changed
-            if (newActiveIndex !== currentSlideIndex) {
-                updateActiveSlide(newActiveIndex);
-            }
-        });
-
-
-        // Function to navigate to a slide (used by TOC and buttons)
-        function navigateToSlide(index) {
-            if (slides[index]) {
-                // Scroll the selected slide into view smoothly
-                slides[index].scrollIntoView({ behavior: 'smooth', block: 'start' });
-                // Immediately update the active state (opacity and TOC) for quick feedback
-                updateActiveSlide(index);
-            }
-        }
-
-        // Event Listeners for navigation buttons
-        prevBtn.addEventListener('click', () => {
-            if (currentSlideIndex > 0) {
-                navigateToSlide(currentSlideIndex - 1);
-            }
-        });
-        nextBtn.addEventListener('click', () => {
-            if (currentSlideIndex < slides.length - 1) {
-                navigateToSlide(currentSlideIndex + 1);
-            }
-        });
-
-        // Event Listeners for Table of Contents items
-        tocItems.forEach(item => {
-            item.addEventListener('click', () => {
-                const index = parseInt(item.dataset.slideIndex);
-                navigateToSlide(index);
+            // TOC link click handler
+            tocLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault(); // Prevent default anchor link behavior
+                    const slideId = link.getAttribute('href').substring(1); // Get slide ID from href
+                    scrollToSlide(slideId);
+                });
             });
-        });
 
-        // Initial setup on page load
-        window.onload = function() {
-            // Ensure the first slide is active and scrolled into view on initial load
-            updateActiveSlide(0);
-            if (slides[0]) {
-                slides[0].scrollIntoView({ behavior: 'auto', block: 'start' });
-            }
-        };
+            // Initial activation on page load
+            updateActiveSlide();
+        });
     </script>
 </body>
 </html>
